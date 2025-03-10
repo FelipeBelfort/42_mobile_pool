@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'geolocation.dart';
-import 'searchlocation.dart';
-import 'tabManager.dart';
+import 'search_location.dart';
+import 'tab_manager.dart';
+import 'weather_service.dart';
 
 void main() {
   runApp(WeatherApp());
@@ -37,18 +38,48 @@ class WeatherHomePage extends StatefulWidget {
 
 class _WeatherHomePageState extends State<WeatherHomePage> {
 
-  String searchedText = '';
+  Map<String, dynamic> searchedText = {};
   final TextEditingController _textController = TextEditingController();
+  List<Map<String, dynamic>> _searchResults = [];
 
   Future<void> _getLocation() async {
     String location = await GeoLocator.determinePosition();
-    _updateText(location);
+    List<Map<String, dynamic>> list = await SearchService.searchByLocation(location);
+    if (list.isNotEmpty) {
+    _updateText(list[0]);
+    }
   }
 
-  void _updateText(text) {
+  Future<void> _searching(String text) async{
+    List<Map<String, dynamic>> list = await SearchService.searchCity(text);
+
     setState(() {
-      searchedText = text;
+      _searchResults = list;
+    });
+  }
+
+  Future<void> _fetchWeather(Map<String, dynamic> city) async {
+    String lat = 'lat';
+    String lon = 'lon';
+    if (city[lat] == null) {
+      lat = 'latitude';
+      lon = 'longitude';
+    }
+    Map<String, dynamic> weather = await WeatherService.getWeather(city[lat], city[lon]);
+    setState(() {
+      searchedText['weather'] = weather['current']['temperature_2m'];
+      
+    });
+
+  }
+
+  void _updateText(city) {
+
+    setState(() {
+      searchedText = city;
+      _fetchWeather(city);
       _textController.clear();
+      _searchResults.clear();
     });
   }
 
@@ -66,82 +97,57 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
         onTabChanged: (int index) {debugPrint('tab: $index');},
         child: Scaffold(
           appBar: AppBar(
-            title: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _textController,
-                    onChanged: SearchService.searchCity,
-                    onSubmitted: (text) => _updateText(text),
-                    decoration: InputDecoration(
-                      hintText: "Search location...",
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                  ),)
-                  ),
-                IconButton(
-                  onPressed: _getLocation,
-                  icon: Icon(Icons.my_location_rounded),
-                  )
-              ],
+              title: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _textController,
+                      onChanged: _searching,
+                      onSubmitted: (text) => _updateText(_searchResults[0]),
+                      decoration: InputDecoration(
+                        hintText: "Search location...",
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                    ),)
+                    ),
+                  IconButton(
+                    onPressed: _getLocation,
+                    icon: Icon(Icons.my_location_rounded),
+                    )
+                ],
+                ),
             ),
-            ),
-          // body: showTabs(widget.tabs, searchedText),
-          body: TabBarView(
+          body: _searchResults.isEmpty
+          ?TabBarView(
             children: widget.tabs.map((Tab tab) {
               return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text('${tab.text}'),
-                    Text(searchedText),
+                    Text(searchedText.isEmpty ? "" : searchedText['name']),
+                    Text(searchedText.isEmpty ? "" : "${searchedText['weather']}°C"),
                   ],
                   ),
               );
             }).toList(),
-            ),
+            )
+            : Expanded(
+                  child: ListView.builder(
+                    itemCount: _searchResults.length,
+                    itemBuilder: (context, index) {
+                      final city = _searchResults[index];
+                      return ListTile(
+                        title: Text("${city['name']}"),
+                        subtitle: Text("${city['admin1']}, ${city['country']}"),
+                        onTap: () => _updateText(city),
+                      );
+                    },
+                  ),
+                ),
           bottomNavigationBar: TabBar(tabs: widget.tabs),
         ),
         ),
       );
   }
 }
-
-
-// class DefaultTabControllerListener extends StatefulWidget {
-//   const DefaultTabControllerListener({
-//     required this.onTabChanged,
-//     required this.child,
-//     super.key,
-//   });
-
-//   final ValueChanged<int> onTabChanged;
-//   final Widget child;
-
-//   @override
-//   State<DefaultTabControllerListener> createState() => _DefaultTabControllerListener();
-// }
-
-// class _DefaultTabControllerListener extends State<DefaultTabControllerListener> {
-//   late TabController _controller;
-
-//   void _listener() {
-//     final TabController? controller = _controller;
-
-//     if (controller == null || controller.indexIsChanging) {
-//       return;
-//     }
-//     widget.onTabChanged(controller.index);
-//   }
-
-//   @override
-//   void dispose() {
-//     _controller.removeListener(_listener);
-//     super.dispose();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return widget.child;
-//   }
-// }

@@ -47,6 +47,6 @@ class GeoLocator {
     // When we reach here, permissions are granted and we can
     // continue accessing the position of the device.
     Position location =  await Geolocator.getCurrentPosition();
-    return "${location.latitude} - ${location.longitude}";
+    return "lat=${location.latitude}&lon=${location.longitude}";
   }
 }
