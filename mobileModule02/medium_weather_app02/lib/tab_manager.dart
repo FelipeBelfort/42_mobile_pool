@@ -128,7 +128,7 @@ class TabViewManager {
                     Text(TabViewManager.country),
                     Expanded(
                       child: ListView.builder(
-                        itemCount: TabViewManager.daily.length,
+                        itemCount: TabViewManager.daily['time'].length,
                         itemBuilder: (context, index) {
                           final day = TabViewManager.daily['time'][index];
                           final max = TabViewManager.daily['temperature_2m_max'][index];
