@@ -16,6 +16,7 @@ class TabViewManager {
       return;
     }
     Map<String, dynamic> weatherData = await WeatherService.getWeather(TabViewManager.lat, TabViewManager.lon);
+    // Map<String, dynamic> weatherData = {};
 
     if (weatherData.isEmpty) {
       return;
@@ -55,7 +56,7 @@ class TabViewManager {
         future: instance._getCachedData(), 
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Text('Searching...');
+            return Text('API connection error');
           } else if (snapshot.hasError) {
             return Text('Error loading data');
           } else {
