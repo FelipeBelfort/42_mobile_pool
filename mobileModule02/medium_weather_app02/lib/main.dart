@@ -20,7 +20,12 @@ class WeatherApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: "WeatherApp",
-      theme: ThemeData.dark(),
+      darkTheme: ThemeData(
+          brightness: Brightness.dark,
+          textTheme: TextTheme(
+            bodyLarge: TextStyle(color: Colors.white),
+          ),
+        ),
       home: WeatherHomePage(tabs: tabs),
     );
   }
@@ -40,13 +45,20 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
 
   final TextEditingController _textController = TextEditingController();
   List<Map<String, dynamic>> _searchResults = [];
+  String _errorMsg = "";
 
   Future<void> _getLocation() async {
     String location = await GeoLocator.determinePosition();
-    List<Map<String, dynamic>> list = await SearchService.searchByLocation(location);
-    if (list.isNotEmpty) {
-    _updateText(list[0]);
+    if (GeoLocator.errorList.contains(location)) {
+      setState(() {
+        _errorMsg = location;
+        _textController.clear();
+      _searchResults.clear();
+      });
+      return;
     }
+    List<Map<String, dynamic>> list = await SearchService.searchByLocation(location);
+    _updateText(list[0]);
   }
 
   Future<void> _searching(String text) async{
@@ -63,6 +75,7 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
       TabViewManager.setData(city);
       _textController.clear();
       _searchResults.clear();
+      _errorMsg = "";
     });
   }
 
@@ -104,7 +117,9 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
             ? TabBarView(
                 children: widget.tabs.map((Tab tab) {
                   return Center(
-                    child: TabViewManager.getTabView('${tab.text}'),
+                    child: _errorMsg.isEmpty 
+                  ? TabViewManager.getTabView('${tab.text}')
+                  : Text(_errorMsg),
                     );
                 }).toList(),
               )

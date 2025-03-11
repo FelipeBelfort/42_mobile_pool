@@ -25,6 +25,13 @@ class TabViewManager {
     TabViewManager.daily = weatherData['daily'];
   }
 
+  Future<void> _getCachedData() async {
+    if (TabViewManager.city.isEmpty || TabViewManager.curr.isEmpty) {
+      return Future.value();
+    }
+    return Future.error("No data available");
+  }
+
   static void setData(Map<String, dynamic> cityData) {
     TabViewManager.city = cityData['name'];
     if (cityData['id'] == null) {
@@ -42,11 +49,22 @@ class TabViewManager {
   }
 
   static Widget getTabView(tabName) {
-    if (TabViewManager.city.isEmpty || TabViewManager.curr.isEmpty) {
-      return Text('Searching...');
-    }
-
     TabViewManager instance = TabViewManager();
+    if (TabViewManager.city.isEmpty || TabViewManager.curr.isEmpty) {
+      return FutureBuilder(
+        future: instance._getCachedData(), 
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Text('Searching...');
+          } else if (snapshot.hasError) {
+            return Text('Error loading data');
+          } else {
+            return getTabView(tabName);
+          }
+        },
+      );
+    }
+ 
     switch (tabName) {
       case 'Currently':
         return instance._getCurrentlyView();
