@@ -41,9 +41,17 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
   Map<String, dynamic> searchedText = {};
   final TextEditingController _textController = TextEditingController();
   List<Map<String, dynamic>> _searchResults = [];
+  String _errorMsg = "";
 
   Future<void> _getLocation() async {
     String location = await GeoLocator.determinePosition();
+    if (GeoLocator.errorList.contains(location)) {
+      setState(() {
+        _errorMsg = location;
+        searchedText.clear();
+      });
+      return;
+    }
     List<Map<String, dynamic>> list = await SearchService.searchByLocation(location);
     if (list.isNotEmpty) {
     _updateText(list[0]);
@@ -80,6 +88,7 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
       _fetchWeather(city);
       _textController.clear();
       _searchResults.clear();
+      _errorMsg = "";
     });
   }
 
@@ -125,7 +134,7 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text('${tab.text}'),
-                    Text(searchedText.isEmpty ? "" : searchedText['name']),
+                    Text(searchedText.isEmpty ? _errorMsg : searchedText['name']),
                     Text(searchedText.isEmpty ? "" : "${searchedText['weather']}°C"),
                   ],
                   ),
