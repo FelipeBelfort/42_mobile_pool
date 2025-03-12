@@ -95,42 +95,41 @@ class TabViewManager {
   }
 
   Widget _getCurrentlyView() {
-    // final double screenSize = MediaQuery.of(context).size.height;
-    // debugPrint("$screenSize");
-    return Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                      Text(''),
-                    // Spacer(),
-                    _expandedFittedBox([
-                      Text(TabViewManager.city),
+    return LayoutBuilder(
+            builder: (context, constraints){
+              double widgetWidth = constraints.maxWidth * 0.1;
+              double widgetHeight = constraints.maxWidth < constraints.maxHeight
+              ?constraints.maxHeight * 0.3
+              :constraints.maxHeight * 0.005;
+            return Padding(
+              padding: EdgeInsets.only(
+                top: widgetHeight, 
+                bottom: widgetHeight,
+                left: widgetWidth,
+                right: widgetWidth,
+                ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _expandedFittedBox([
+                    Text(TabViewManager.city),
+                    
+                  ]),
+                  _expandedFittedBox([
                       Text("${TabViewManager.state}, ${TabViewManager.country}"),
-                    ]),
-                      Text(''),
-                    // Spacer(),
-                    _expandedFittedBox([
-                      Text("${TabViewManager.curr['temperature_2m']}°C"),
-                    ]),
-                    _expandedFittedBox([
-                      Text(getWeatherIcon(TabViewManager.curr['weather_code'])),
-                    ]),
-                    _expandedFittedBox([
+                      Text("༄ ${TabViewManager.curr['wind_speed_10m']} Km/h"),
                       Text(getWeatherDescription(TabViewManager.curr['weather_code'])),
-                      Text(''),
                     ]),
-                    _expandedFittedBox([
-                      Padding(
-                        padding: EdgeInsets.all(7.4),
-                        child: Text("༄ ${TabViewManager.curr['wind_speed_10m']} Km/h"),
-                      ),
-
-                      // Text(''),
-                      // Text(''),
-                    ]),
-                      Text(''),
-                    // Spacer(),
-                  ],
-                  );
+                  _expandedFittedBox([
+                    Text(getWeatherIcon(TabViewManager.curr['weather_code'])),
+                  ]),
+                  _expandedFittedBox([
+                    Text("${TabViewManager.curr['temperature_2m']}°C"),
+                  ]),
+                ],
+            ),
+            );
+            });
   }
 
   Widget _getTodayView() {

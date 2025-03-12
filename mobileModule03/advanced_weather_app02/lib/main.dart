@@ -100,13 +100,10 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final double textSize = MediaQuery.of(context).size.height;
-    debugPrint("$textSize");
     return DefaultTabController(
       length: widget.tabs.length,
       child: DefaultTabControllerListener(
         onTabChanged: (int index) {debugPrint('tab: $index');},
-        // child: BackgroundWrapper(
           child: Scaffold(
             backgroundColor: Colors.transparent,
             appBar: AppBar(
@@ -162,28 +159,6 @@ class _WeatherHomePageState extends State<WeatherHomePage> {
             ),
           ),
       ),
-        // ),
       );
   }
 }
-
-// class BackgroundWrapper extends StatelessWidget {
-//   final Widget child;
-
-//   const BackgroundWrapper({super.key, required this.child});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Stack(
-//       children: [
-//         Positioned.fill(
-//           child: Image.asset(
-//             "assets/images/background2.jpg",
-//             fit: BoxFit.cover,
-//           ),
-//         ),
-//         child,
-//       ],
-//     );
-//   }
-// }
