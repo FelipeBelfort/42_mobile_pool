@@ -45,6 +45,9 @@ class TabViewManager {
       TabViewManager.lat = cityData['latitude'];
       TabViewManager.lon = cityData['longitude'];
     }
+    curr = {};
+    hourly = {};
+    daily = {};
     updateWeather();
   }
 
@@ -105,10 +108,12 @@ class TabViewManager {
                         itemBuilder: (context, index) {
                           final hour = TabViewManager.hourly['time'][index];
                           final temp = TabViewManager.hourly['temperature_2m'][index];
+                          final code = TabViewManager.hourly['weather_code'][index];
                           final wind = TabViewManager.hourly['wind_speed_10m'][index];
                           return ListTile(
                             leading: Text(hour.split('T')[1]),
                             title: Text("$temp°C"),
+                            subtitle: Text(getWeatherIcon(code)),
                             trailing: Text("$wind Km/h"),
                           );
                         },

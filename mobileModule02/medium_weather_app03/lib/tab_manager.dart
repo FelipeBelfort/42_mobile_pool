@@ -10,6 +10,7 @@ class TabViewManager {
   static Map<String, dynamic> curr = {};
   static Map<String, dynamic> hourly = {};
   static Map<String, dynamic> daily = {};
+  static bool apiError = false;
 
   static Future<void> updateWeather() async {
     if (TabViewManager.lat == 0 || TabViewManager.lon == 0) {
@@ -19,8 +20,10 @@ class TabViewManager {
     // Map<String, dynamic> weatherData = {};
 
     if (weatherData.isEmpty) {
+      TabViewManager.apiError = true;
       return;
     }
+    TabViewManager.apiError = false;
     TabViewManager.curr = weatherData['current'];
     TabViewManager.hourly = weatherData['hourly'];
     TabViewManager.daily = weatherData['daily'];
@@ -46,17 +49,23 @@ class TabViewManager {
       TabViewManager.lat = cityData['latitude'];
       TabViewManager.lon = cityData['longitude'];
     }
+    curr = {};
+    hourly = {};
+    daily = {};
     updateWeather();
   }
 
   static Widget getTabView(tabName) {
+    if (TabViewManager.apiError) {
+      return Text('API connection failed');
+    }
     TabViewManager instance = TabViewManager();
     if (TabViewManager.city.isEmpty || TabViewManager.curr.isEmpty) {
       return FutureBuilder(
         future: instance._getCachedData(), 
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Text('API connection error');
+            return Text('Searching...');
           } else if (snapshot.hasError) {
             return Text('Error loading data');
           } else {
@@ -106,10 +115,12 @@ class TabViewManager {
                         itemBuilder: (context, index) {
                           final hour = TabViewManager.hourly['time'][index];
                           final temp = TabViewManager.hourly['temperature_2m'][index];
+                          final code = TabViewManager.hourly['weather_code'][index];
                           final wind = TabViewManager.hourly['wind_speed_10m'][index];
                           return ListTile(
                             leading: Text(hour.split('T')[1]),
                             title: Text("$temp°C"),
+                            subtitle: Text(getWeatherIcon(code)),
                             trailing: Text("$wind Km/h"),
                           );
                         },
