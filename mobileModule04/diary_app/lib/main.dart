@@ -1,10 +1,14 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:sign_in_button/sign_in_button.dart';
 import 'firebase_options.dart';
+import 'google_sign_in.dart';
 
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
 
     options: DefaultFirebaseOptions.currentPlatform,
@@ -23,7 +27,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'diary_app'),
     );
   }
 }
@@ -38,11 +42,17 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  
+  User? _user;
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
+  @override
+  void initState() {
+    super.initState();
+    _auth.authStateChanges().listen((event) {
+      setState(() {
+        _user = event;
+      });
     });
   }
 
@@ -57,19 +67,35 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
+            _user != null
+            ?_userPage()
+            :_signInButton(),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
     );
   }
+
+  Widget _signInButton() {
+    return SignInButton(
+      Buttons.google, 
+      // onPressed: () => debugPrint('button pressed'));
+      onPressed: _handleGoogleSignIn,
+      );
+  }
+
+  Widget _userPage() {
+    return Text('Welcome ');
+  }
+
+  void _handleGoogleSignIn() {
+    try {
+      GoogleAuthProvider googleAuthProvider = GoogleAuthProvider();
+      _auth.signInWithProvider(googleAuthProvider);
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
 }
+
