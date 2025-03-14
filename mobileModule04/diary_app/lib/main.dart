@@ -88,10 +88,19 @@ class _MyHomePageState extends State<MyHomePage> {
     return Text('Welcome ');
   }
 
-  void _handleGoogleSignIn() {
+  void _handleGoogleSignIn() async {
     try {
-      GoogleAuthProvider googleAuthProvider = GoogleAuthProvider();
-      _auth.signInWithProvider(googleAuthProvider);
+      UserCredential? _userCredential = await signInWithGoogle(
+        // clientId: '696347209276-p9s1m8ds8nh3a88i349pi8g0vgkbq1gp.apps.googleusercontent.com';
+      );
+
+      if (_userCredential != null) {
+        setState(() {
+          _user = _userCredential.user;
+        });
+      }
+      // GoogleAuthProvider googleAuthProvider = GoogleAuthProvider();
+      // _auth.signInWithProvider(googleAuthProvider);
     } catch (e) {
       debugPrint(e.toString());
     }

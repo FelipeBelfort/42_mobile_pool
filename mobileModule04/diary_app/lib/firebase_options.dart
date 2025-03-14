@@ -64,6 +64,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '696347209276',
     projectId: 'diary-app-e9fe7',
     storageBucket: 'diary-app-e9fe7.firebasestorage.app',
+    iosClientId: '696347209276-8de8nkljjoscik27kjcpr81bnsqqhv6i.apps.googleusercontent.com',
     iosBundleId: 'com.example.diaryApp',
   );
 
@@ -73,6 +74,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '696347209276',
     projectId: 'diary-app-e9fe7',
     storageBucket: 'diary-app-e9fe7.firebasestorage.app',
+    iosClientId: '696347209276-8de8nkljjoscik27kjcpr81bnsqqhv6i.apps.googleusercontent.com',
     iosBundleId: 'com.example.diaryApp',
   );
 
@@ -85,4 +87,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'diary-app-e9fe7.firebasestorage.app',
     measurementId: 'G-2BP8ZZQR09',
   );
+
 }
