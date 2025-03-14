@@ -1,10 +1,12 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:diary_app/github_sign_in.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:sign_in_button/sign_in_button.dart';
 import 'firebase_options.dart';
 import 'google_sign_in.dart';
+import 'user_page.dart';
 
 
 Future<void> main() async {
@@ -64,46 +66,46 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            _user != null
-            ?_userPage()
-            :_signInButton(),
-          ],
-        ),
+          child: _user != null
+            ?ProfilePage()
+            :Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _signInButton(true),
+                Text(''),
+                _signInButton(false),
+              ],
+            ), 
       ),
     );
   }
 
-  Widget _signInButton() {
+  Widget _signInButton(bool isGoogle) {
     return SignInButton(
-      Buttons.google, 
-      // onPressed: () => debugPrint('button pressed'));
-      onPressed: _handleGoogleSignIn,
+      isGoogle
+      ?Buttons.google
+      :Buttons.gitHub, 
+      onPressed: () => _handleSignIn(isGoogle ? signInWithGoogle : signInWithGitHub),
       );
   }
 
-  Widget _userPage() {
-    return Text('Welcome ');
-  }
+  // Widget _userPage() {
+  //   return Text('Welcome ${_user!.email}');
+  // }
 
-  void _handleGoogleSignIn() async {
+  void _handleSignIn(func) async {
     try {
-      UserCredential? _userCredential = await signInWithGoogle(
-        // clientId: '696347209276-p9s1m8ds8nh3a88i349pi8g0vgkbq1gp.apps.googleusercontent.com';
-      );
+      UserCredential? _userCredential = await func();
 
       if (_userCredential != null) {
         setState(() {
           _user = _userCredential.user;
         });
       }
-      // GoogleAuthProvider googleAuthProvider = GoogleAuthProvider();
-      // _auth.signInWithProvider(googleAuthProvider);
     } catch (e) {
       debugPrint(e.toString());
     }
+  
   }
 
 }
