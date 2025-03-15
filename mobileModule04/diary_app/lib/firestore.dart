@@ -30,6 +30,15 @@ class FirestoreService {
         .snapshots();
   }
 
+ // 🔹 Update an existing entry
+  Future<void> updateEntry(String entryId, String title, String mood, String content) async {
+    await _db.collection("entries").doc(entryId).update({
+      "title": title,
+      "mood": mood,
+      "content": content,
+    });
+  }
+
   // 🔹 Delete an entry
   Future<void> deleteEntry(String entryId) async {
     await _db.collection("entries").doc(entryId).delete();
